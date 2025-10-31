@@ -111,30 +111,42 @@ def simulation():
         print("Target didnt meet game")
 
     else: # simulationslogik 
-        print("Target met game values!! :)")
-        target_games = target_games + 1
-
+        print("Target met game values! :)")
+        target_games += 1
 
         """
-        # simulera alltid hit
-        card = pickACard(deck, cards, suits)
-        player_hand.append(card)
+        # SIMULATE HIT
+        hit_hand = player_hand.copy()
+        hit_deck = deck.copy()
+        hit_hand.append(pickACard(hit_deck, cards, suits))
+        dealer_hit = dealer_hand.copy()
+        dealerHitUntil21(dealer_hit)
+        if checkWinner(hit_hand, dealer_hit) == "player":
+            hit_wins += 1
 
-        # simulera alltid stand (ingenting lol)
+        # SIMULATE STAND (ingenting lol)
+        stand_hand = player_hand.copy()
+        dealer_stand = dealer_hand.copy()
+        dealerHitUntil21(dealer_stand)
+        if checkWinner(stand_hand, dealer_stand) == "player":
+            stand_wins += 1
         
         # kolla vinnaren
 
         # dealer logik
-        dealerHitUntil21(dealer_hand)
-
-        winner = checkWinner()
-        winners.append(winner)
         """
 
-for g in range(0, 100000): # antal gånger simulationen ska köras
+for g in range(0, 1000): # antal gånger simulationen ska köras
     print("Startar ny simulation")
     simulation()
 
 
-print(winners)
-print(target_games)
+print(f"Target games: {target_games}")
+print((f"Hit wins: {hit_wins}"))
+print(f"Stand wins: {stand_wins}")
+if hit_wins > stand_wins:
+    print("Hitting is better")
+elif stand_wins > hit_wins:
+    print("Standing is better")
+else:
+    print("Tie between hitting and standing")
