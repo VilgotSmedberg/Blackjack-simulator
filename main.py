@@ -1,15 +1,24 @@
 import random
 
+def initializeDeck(cards, suits):
+    return [f"{card} of {suit}" for card in cards for suit in suits]
+
 cards = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
+
+deck = initializeDeck(cards, suits)
+
 winners = []
 
 target_games = 0
 
-deck = []
-
 hit_wins = 0
+hit_losses = 0
+hit_pushes = 0
+
 stand_wins = 0
+stand_losses = 0
+stand_pushes = 0
 
 # def check_if_card_in_use(card):
 
@@ -28,28 +37,23 @@ def getHandValue(hand):
     for card in hand:
         value = getCardValue(card)
         hand_value += value
-        return hand_value
+    return hand_value
 
 def pickACard(deck, cards, suits):
-    card_found = False
-    while not card_found:
-        card = random.choice(cards)
-        suit = random.choice(suits)
-        card_name = f"{card} of {suit}"
-        if card_name not in deck:
-            deck.append(card_name)
-            card_found = True
-            return card_name
-        else:
-            print(f"{card} of {suit} already in use!")
-        
+    if not deck:
+        print("Deck is empty!")
+        return None
+    card = random.choice(deck)
+    deck.remove(card) # remove the card from the deck in order to make sure it cant be drawn again
+    return card
+    
 
-def dealerHitUntil21(dealer_hand):
-    dealer_hand_value = getHandValue(dealer_hand)
-    while (dealer_hand_value < 17):
+def dealerHitUntil21(dealer_hand, deck):
+    while getHandValue(dealer_hand) < 17:
         card = pickACard(deck, cards, suits)
+        if card is None:
+            break  # stop if no cards left
         dealer_hand.append(card)
-        dealer_hand_value = getHandValue(dealer_hand)
 
 def checkWinner(player_hand, dealer_hand):
     player_hand_value = getHandValue(player_hand)
@@ -65,16 +69,30 @@ def checkWinner(player_hand, dealer_hand):
         elif (player_hand_value > dealer_hand_value):
             print("Player value more than dealer value. Player win.")
             return "player"
+        elif (player_hand_value == dealer_hand_value):
+            print("It's a tie (push).")
+            return "push"
+        else:
+            print("Dealer wins.")
+            return "dealer"
+
 
 
 def simulation():
-    global target_games
-    deck = []
+    global stand_wins, hit_wins, target_games
+    global hit_losses, hit_pushes, stand_losses, stand_pushes
+    # global stand_wins, hit_wins, target_games
+
+    deck = initializeDeck(cards, suits)
+
+    hit_deck = []
+    hit_hand = []
+    stand_hand = []
 
     dealer_hand = []
     player_hand = []
 
-    print(f"Deck: {deck}")
+    print(f"Number of cards in deck: {len(deck)}")
 
     # ge dealer 2 kort
     for i in range(0, 2):
@@ -88,23 +106,20 @@ def simulation():
 
     print(f"Player hand: {player_hand}")
     print(f"Dealer hand: {dealer_hand}")
-    print(deck)
 
     dealer_value = 0
     player_value = 0
 
     # få värdet av dealers hand:
-    for card in dealer_hand:
-        dealer_value += getCardValue(card)
+    dealer_value = getHandValue(dealer_hand)
 
-    for card in player_hand:
-        player_value += getCardValue(card)
+    player_value = getHandValue(player_hand)
 
     print(f"Player value: {player_value}")
     print(f"Dealer value: {dealer_value}")
 
-    player_target_value = 20
-    dealer_target_value = 5
+    player_target_value = 15
+    dealer_target_value = 17
 
     # om target inte uppfylls
     if ((player_value != player_target_value) or (dealer_value != dealer_target_value)):
@@ -114,39 +129,64 @@ def simulation():
         print("Target met game values! :)")
         target_games += 1
 
-        """
+        #"""
         # SIMULATE HIT
         hit_hand = player_hand.copy()
         hit_deck = deck.copy()
         hit_hand.append(pickACard(hit_deck, cards, suits))
+        print(f"Player hit.. and has hand {hit_hand}!")
         dealer_hit = dealer_hand.copy()
-        dealerHitUntil21(dealer_hit)
-        if checkWinner(hit_hand, dealer_hit) == "player":
+        dealerHitUntil21(dealer_hit, hit_deck)
+        result_hit = checkWinner(hit_hand, dealer_hit)
+        if result_hit == "player":
             hit_wins += 1
+        elif result_hit == "dealer":
+            hit_losses += 1
+        else: 
+            hit_pushes += 1
 
         # SIMULATE STAND (ingenting lol)
         stand_hand = player_hand.copy()
         dealer_stand = dealer_hand.copy()
-        dealerHitUntil21(dealer_stand)
-        if checkWinner(stand_hand, dealer_stand) == "player":
+        stand_deck = deck.copy()
+        dealerHitUntil21(dealer_stand, stand_deck)
+        result_stand = checkWinner(stand_hand, dealer_stand)
+        if result_stand == "player":
             stand_wins += 1
+        elif result_stand == "dealer":
+            stand_losses += 1
+        else:
+            stand_pushes += 1
         
         # kolla vinnaren
 
         # dealer logik
-        """
+        #"""
 
-for g in range(0, 1000): # antal gånger simulationen ska köras
-    print("Startar ny simulation")
+for g in range(0, 10000): # antal gånger simulationen ska köras
+    print(f"Startar simulation #{g}")
     simulation()
 
 
 print(f"Target games: {target_games}")
 print((f"Hit wins: {hit_wins}"))
 print(f"Stand wins: {stand_wins}")
-if hit_wins > stand_wins:
-    print("Hitting is better")
-elif stand_wins > hit_wins:
-    print("Standing is better")
+
+print("-----")
+print(f"Hit win rate: {((hit_wins / target_games) * 100):.3f}%") 
+print(f"Stand win rate: {((stand_wins / target_games) * 100):.3f}%")
+print("-----")
+
+total_hit = hit_wins + hit_losses + hit_pushes
+total_stand = stand_wins + stand_losses + stand_pushes
+
+ev_hit = (hit_wins - hit_losses) / total_hit
+ev_stand = (stand_wins - stand_losses) / total_stand
+
+print(f"EV (Hit): {ev_hit:.3f}")
+print(f"EV (stand): {ev_stand:.3f}")
+
+if (ev_hit > ev_stand):
+    print("Hitting it better")
 else:
-    print("Tie between hitting and standing")
+    print("Standing is better")
