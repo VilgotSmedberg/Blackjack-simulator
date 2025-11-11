@@ -118,8 +118,8 @@ def simulation():
     print(f"Player value: {player_value}")
     print(f"Dealer value: {dealer_value}")
 
-    player_target_value = 15
-    dealer_target_value = 17
+    player_target_value = 20
+    dealer_target_value = 17 # den här ska ändras till endast ETT KORT, dealer_target_upcard 
 
     # om target inte uppfylls
     if ((player_value != player_target_value) or (dealer_value != dealer_target_value)):
