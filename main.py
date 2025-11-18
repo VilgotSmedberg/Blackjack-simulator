@@ -47,6 +47,8 @@ def pickACard(deck, cards, suits):
     deck.remove(card) # remove the card from the deck in order to make sure it cant be drawn again
     return card
     
+def hasBlackjack(hand):
+    return 11 in hand and getHandValue(hand) == 21
 
 def dealerHitUntil21(dealer_hand, deck):
     while getHandValue(dealer_hand) < 17:
@@ -119,10 +121,11 @@ def simulation():
     print(f"Dealer value: {dealer_value}")
 
     player_target_value = 20
-    dealer_target_value = 17 # den här ska ändras till endast ETT KORT, dealer_target_upcard 
+    dealer_target_upcard = 4 # den här ska ändras till endast ETT KORT, dealer_target_upcard 
 
     # om target inte uppfylls
-    if ((player_value != player_target_value) or (dealer_value != dealer_target_value)):
+    # print(dealer_hand)
+    if ((player_value != player_target_value) or (getCardValue(dealer_hand[0]) != dealer_target_upcard)):
         print("Target didnt meet game")
 
     else: # simulationslogik 
@@ -167,10 +170,13 @@ for g in range(0, 10000): # antal gånger simulationen ska köras
     print(f"Startar simulation #{g}")
     simulation()
 
-
-print(f"Target games: {target_games}")
+print("-----")
+print("   RESULTS   ")
+print(f"Target games: {target_games}\n")
 print((f"Hit wins: {hit_wins}"))
+print((f"Hit losses: {hit_losses}"))
 print(f"Stand wins: {stand_wins}")
+print(f"Stand losses: {stand_losses}")
 
 print("-----")
 print(f"Hit win rate: {((hit_wins / target_games) * 100):.3f}%") 
