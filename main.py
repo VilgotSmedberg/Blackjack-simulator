@@ -1,12 +1,12 @@
 import random
 
-def initializeDeck(cards, suits):
+def initialize_deck(cards, suits):
     return [f"{card} of {suit}" for card in cards for suit in suits]
 
 cards = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
 
-deck = initializeDeck(cards, suits)
+deck = initialize_deck(cards, suits)
 
 winners = []
 
@@ -23,7 +23,7 @@ stand_pushes = 0
 # def check_if_card_in_use(card):
 
 # konvertera till blackjack-värde
-def getCardValue(card):
+def get_card_value(card):
     rank = card.split(' ')[0] # dra ut värdet från kortet, ex 7 från '7 of Hearts'
     if rank in ['J', 'Q', 'K']:
         return 10
@@ -32,14 +32,14 @@ def getCardValue(card):
     else:
         return int(rank)
     
-def getHandValue(hand):
+def get_hand_value(hand):
     hand_value = 0
     for card in hand:
-        value = getCardValue(card)
+        value = get_card_value(card)
         hand_value += value
     return hand_value
 
-def pickACard(deck, cards, suits):
+def draw_card(deck, cards, suits):
     if not deck:
         print("Deck is empty!")
         return None
@@ -47,19 +47,19 @@ def pickACard(deck, cards, suits):
     deck.remove(card) # remove the card from the deck in order to make sure it cant be drawn again
     return card
     
-def hasBlackjack(hand):
-    return 11 in hand and getHandValue(hand) == 21
+def has_blackjack(hand):
+    return 11 in hand and get_hand_value(hand) == 21
 
-def dealerHitUntil21(dealer_hand, deck):
-    while getHandValue(dealer_hand) < 17:
-        card = pickACard(deck, cards, suits)
+def dealer_draw_until_17(dealer_hand, deck):
+    while get_hand_value(dealer_hand) < 17:
+        card = draw_card(deck, cards, suits)
         if card is None:
             break  # stop if no cards left
         dealer_hand.append(card)
 
-def checkWinner(player_hand, dealer_hand):
-    player_hand_value = getHandValue(player_hand)
-    dealer_hand_value = getHandValue(dealer_hand)
+def determine_winner(player_hand, dealer_hand):
+    player_hand_value = get_hand_value(player_hand)
+    dealer_hand_value = get_hand_value(dealer_hand)
 
     if (player_hand_value > 21):
         print("Player busted. Value above 21")
@@ -85,9 +85,8 @@ def simulation():
     global hit_losses, hit_pushes, stand_losses, stand_pushes
     # global stand_wins, hit_wins, target_games
 
-    deck = initializeDeck(cards, suits)
+    deck = initialize_deck(cards, suits)
 
-    hit_deck = []
     hit_hand = []
     stand_hand = []
 
@@ -97,13 +96,13 @@ def simulation():
     print(f"Number of cards in deck: {len(deck)}")
 
     # ge dealer 2 kort
-    for i in range(0, 2):
-        card = pickACard(deck, cards, suits)
+    for card_index in range(0, 2):
+        card = draw_card(deck, cards, suits)
         dealer_hand.append(card)
 
     # ge player 2 kort 
-    for r in range(0, 2):
-        card = pickACard(deck, cards, suits)
+    for card_index in range(0, 2):
+        card = draw_card(deck, cards, suits)
         player_hand.append(card)
 
     print(f"Player hand: {player_hand}")
@@ -113,9 +112,9 @@ def simulation():
     player_value = 0
 
     # få värdet av dealers hand:
-    dealer_value = getHandValue(dealer_hand)
+    dealer_value = get_hand_value(dealer_hand)
 
-    player_value = getHandValue(player_hand)
+    player_value = get_hand_value(player_hand)
 
     print(f"Player value: {player_value}")
     print(f"Dealer value: {dealer_value}")
@@ -125,7 +124,7 @@ def simulation():
 
     # om target inte uppfylls
     # print(dealer_hand)
-    if ((player_value != player_target_value) or (getCardValue(dealer_hand[0]) != dealer_target_upcard)):
+    if ((player_value != player_target_value) or (get_card_value(dealer_hand[0]) != dealer_target_upcard)):
         print("Target didnt meet game")
 
     else: # simulationslogik 
@@ -135,28 +134,28 @@ def simulation():
         #"""
         # SIMULATE HIT
         hit_hand = player_hand.copy()
-        hit_deck = deck.copy()
-        hit_hand.append(pickACard(hit_deck, cards, suits))
+        hit_scenario_deck = deck.copy()
+        hit_hand.append(draw_card(hit_scenario_deck, cards, suits))
         print(f"Player hit.. and has hand {hit_hand}!")
-        dealer_hit = dealer_hand.copy()
-        dealerHitUntil21(dealer_hit, hit_deck)
-        result_hit = checkWinner(hit_hand, dealer_hit)
-        if result_hit == "player":
+        dealer_hand_after_hit = dealer_hand.copy()
+        dealer_draw_until_17(dealer_hand_after_hit, hit_scenario_deck)
+        hit_scenario_result = determine_winner(hit_hand, dealer_hand_after_hit)
+        if hit_scenario_result == "player":
             hit_wins += 1
-        elif result_hit == "dealer":
+        elif hit_scenario_result == "dealer":
             hit_losses += 1
         else: 
             hit_pushes += 1
 
         # SIMULATE STAND (ingenting lol)
         stand_hand = player_hand.copy()
-        dealer_stand = dealer_hand.copy()
-        stand_deck = deck.copy()
-        dealerHitUntil21(dealer_stand, stand_deck)
-        result_stand = checkWinner(stand_hand, dealer_stand)
-        if result_stand == "player":
+        dealer_hand_after_stand = dealer_hand.copy()
+        stand_scenario_deck = deck.copy()
+        dealer_draw_until_17(dealer_hand_after_stand, stand_scenario_deck)
+        stand_scenario_result = determine_winner(stand_hand, dealer_hand_after_stand)
+        if stand_scenario_result == "player":
             stand_wins += 1
-        elif result_stand == "dealer":
+        elif stand_scenario_result == "dealer":
             stand_losses += 1
         else:
             stand_pushes += 1
@@ -166,8 +165,8 @@ def simulation():
         # dealer logik
         #"""
 
-for g in range(0, 10000): # antal gånger simulationen ska köras
-    print(f"Startar simulation #{g}")
+for simulation_number in range(0, 10000): # antal gånger simulationen ska köras
+    print(f"Startar simulation #{simulation_number}")
     simulation()
 
 print("-----")
@@ -186,13 +185,13 @@ print("-----")
 total_hit = hit_wins + hit_losses + hit_pushes
 total_stand = stand_wins + stand_losses + stand_pushes
 
-ev_hit = (hit_wins - hit_losses) / total_hit
-ev_stand = (stand_wins - stand_losses) / total_stand
+expected_value_hit = (hit_wins - hit_losses) / total_hit
+expected_value_stand = (stand_wins - stand_losses) / total_stand
 
-print(f"EV (Hit): {ev_hit:.3f}")
-print(f"EV (stand): {ev_stand:.3f}")
+print(f"EV (Hit): {expected_value_hit:.3f}")
+print(f"EV (stand): {expected_value_stand:.3f}")
 
-if (ev_hit > ev_stand):
+if (expected_value_hit > expected_value_stand):
     print("Hitting it better")
 else:
     print("Standing is better")
