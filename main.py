@@ -1,9 +1,10 @@
 import random
 
-NUMBER_OF_DECKS = 6         
+NUMBER_OF_DECKS = 1    
 HIT_SOFT_17 = True           
 BLACKJACK_PAYOUT = 1.5
-ALLOW_SURRENDER = True       
+ALLOW_SURRENDER = True    
+SIMULATIONS = 50000   
 
 def createShoe(decks):
     single = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
@@ -76,7 +77,7 @@ def simulateRound(player, dealer_up, action):
     if pv < dv: return -bet
     return 0
 
-def EV(hand, dealer, action, sims=10000):
+def EV(hand, dealer, action, sims=SIMULATIONS):
     total = 0
     for _ in range(sims):
         total += simulateRound(hand[:], dealer, action)
@@ -86,8 +87,8 @@ def generateBasicStrategy():
     actions = ["hit", "stand", "double"] + (["surrender"] if ALLOW_SURRENDER else [])
     deck = [2,3,4,5,6,7,8,9,10,10,10,10,11]
 
-    print("\n Använder ruleset")
-    print(f"{NUMBER_OF_DECKS} kortlekar - H17 {HIT_SOFT_17} - BJ: {BLACKJACK_PAYOUT} - Surrender: {ALLOW_SURRENDER}")
+    print("\nAnvänder ruleset")
+    print(f"{NUMBER_OF_DECKS} kortlekar | Hit on soft 17: {HIT_SOFT_17} | Blackjack payout: {BLACKJACK_PAYOUT} | Surrender: {ALLOW_SURRENDER} | antal simuleringar - {SIMULATIONS}")
 
     # soft tot - 8-20
     for total in range(8, 21):  
