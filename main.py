@@ -89,11 +89,10 @@ def generateBasicStrategy():
     print("\n Använder ruleset")
     print(f"{NUMBER_OF_DECKS} kortlekar - H17 {HIT_SOFT_17} - BJ: {BLACKJACK_PAYOUT} - Surrender: {ALLOW_SURRENDER}")
 
-    # -------- SOFT TOTALS (8 → 20) --------
+    # soft tot - 8-20
     for total in range(8, 21):  
         for dealer in [2,3,4,5,6,7,8,9,10,11]:
 
-            # hitta första hand som ger total + är soft
             hand_found = None
             for a in deck:
                 for b in deck:
@@ -117,11 +116,10 @@ def generateBasicStrategy():
 
             print(f"soft {total} vs {dealer}: {best_action} (EV {best_ev:.3f})")
 
-    # -------- HARD TOTALS (8 → 20) --------
+    # hard tots - 8-20
     for total in range(8, 21): 
         for dealer in [2,3,4,5,6,7,8,9,10,11]:
 
-            # hitta första hand som ger total + inte är soft
             hand_found = None
             for a in deck:
                 for b in deck:
